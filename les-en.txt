@@ -1,0 +1,12 @@
+nome-do-grupo      = Software Engineering Laboratory - DCC - UFBA 
+arquivo-de-entrada = les-members.txt
+diretorio-de-saida = output/en
+email-do-admin     = les@dcc.ufba.br
+itens-desde-o-ano  = 2000
+itens-ate-o-ano    = HOJE
+itens-por-pagina   = 1000
+criar-paginas-jsp  = n
+mostrar-ids-lattes = sim
+mapa-de-pesquisa   = sim
+google-map-key     = ABQIAAAAARbUA0sX6u-dIMfrzywAkxSNCh8D9WbDRsyQOZP7fgU69d6g6xQQhqY7p9kRtUBpEe_e1ms1GCtpKQ
+idioma             = EN
