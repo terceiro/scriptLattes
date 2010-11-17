@@ -28,7 +28,7 @@ use Date::Format;
 use Date::Language;
 use JSON;
 use Unicode::Normalize;
-use File::Path qw(make_path);
+use File::Path;
 
 my @pars= readParameters($ARGV[0]); # Lemos os parâmetros indicados no arquivo de configuração dado como entrada na execução do scriptLattes
 my $groupName          = $pars[0];  # Nome do grupo de pesquisa / titulo global para todas as paginas
@@ -1347,7 +1347,7 @@ sub getLattesFiles
 	my($authorListRef, $outputDir) = @_;
 
 	# Criação do diretório para armazenar os arquivos Lattes de cada autor
-	make_path($outputDir);
+	mkpath($outputDir);
 	system("rm -f $outputDir/*.download");
 
 	print "\n\nBaixando os currículos Lattes do site do CNPq:";
