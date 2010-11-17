@@ -12,4 +12,3 @@ publish: all
 
 clean:
 	rm -rf output/
-	rm -rf index.html
