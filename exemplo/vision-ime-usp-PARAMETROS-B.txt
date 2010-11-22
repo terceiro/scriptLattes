@@ -7,16 +7,18 @@ itens-ate-o-ano    = HOJE
 itens-por-pagina   = 1000
 criar-paginas-jsp  = nao
 idioma             = EN
-mostrar-ids-lattes = nao
+mostrar-ids-lattes = sim
 
 mostrar-orientacoes= nao
+mostrar-projetos   = nao
 mostrar-bancas     = nao
 mostrar-comissoes  = nao
 mostrar-eventos    = nao
+mostrar-premios    = nao
 
-mostrar-grafo-colaboracoes= nao
-mostrar-todos-os-nos      =
-mostrar-indicadores       =
+mostrar-grafo-colaboracoes= sim
+mostrar-todos-os-nos      = sim
+mostrar-indicadores       = nao
 
 mostrar-mapa-de-pesquisa  = nao
 google-map-key            = 
