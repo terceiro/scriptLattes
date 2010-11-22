@@ -10,9 +10,11 @@ idioma             = PT
 mostrar-ids-lattes = sim
 
 mostrar-orientacoes= sim
+mostrar-projetos   = sim
 mostrar-bancas     = sim
 mostrar-comissoes  = sim
 mostrar-eventos    = sim
+mostrar-premios    = sim
 
 mostrar-grafo-colaboracoes= sim
 mostrar-todos-os-nos      = sim

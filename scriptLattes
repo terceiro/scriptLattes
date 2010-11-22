@@ -43,17 +43,19 @@ my $lang               = $pars[8];  # idioma para a criaçao dos relatórios
 my $flagIDSLattes      = $pars[9];  # flag para mostrar os IDs Lattes nas páginas web
 
 my $flagOrientacoes    = $pars[10]; # flag para mostrar 
-my $flagBancas         = $pars[11]; # flag para mostrar 
-my $flagComissoes      = $pars[12]; # flag para mostrar 
-my $flagEventos        = $pars[13]; # flag para mostrar 
+my $flagProjetos       = $pars[11]; # flag para mostrar 
+my $flagBancas         = $pars[12]; # flag para mostrar 
+my $flagComissoes      = $pars[13]; # flag para mostrar 
+my $flagEventos        = $pars[14]; # flag para mostrar 
+my $flagPremios        = $pars[15]; # flag para mostrar 
 
-my $flagGrafo          = $pars[14]; # flag para mostrar 
-my $flagTodosOsNos     = $pars[15]; # flag para mostrar todos os nós no grafo de colaborações (i.e. inclusive os membros que nao colaboram)
-my $flagIndicadores    = $pars[16]; # flag para mostrar os indicadores
+my $flagGrafo          = $pars[16]; # flag para mostrar 
+my $flagTodosOsNos     = $pars[17]; # flag para mostrar todos os nós no grafo de colaborações (i.e. inclusive os membros que nao colaboram)
+my $flagIndicadores    = $pars[18]; # flag para mostrar os indicadores
 
-my $flagGoogleMap      = $pars[17]; # flag para a criação do mapa de pesquisa
-my $googleMapKey       = $pars[18]; # key do maps.google.com para acessar as páginas
-my $googleAnalyticsKey = $pars[19]; # flag para mostrar os indicadores
+my $flagGoogleMap      = $pars[19]; # flag para a criação do mapa de pesquisa
+my $googleMapKey       = $pars[20]; # key do maps.google.com para acessar as páginas
+my $googleAnalyticsKey = $pars[21]; # flag para mostrar os indicadores
 
 my @cepList;
 my @transList;
@@ -64,7 +66,7 @@ loadTranslator();
 my $urlLattes          = 'http://lattes.cnpq.br/';
 my $urlPhotoRetrieve   = 'http://buscatextual.cnpq.br/buscatextual/servletrecuperafoto?id=';
 my $urlscriptLattes    = 'http://scriptlattes.sourceforge.net/';
-my $version            = 'V7.02';
+my $version            = 'V7.04';
 
 my $fromYear = $itemsFromYear; $fromYear=~s/HOJE/2099/gi; $fromYear=scalar($fromYear);
 my $toYear   = $itemsToYear;   $toYear=~s/HOJE/2099/gi;   $toYear  =scalar($toYear);
@@ -123,6 +125,14 @@ my $numberOfEventosTypes;
 my @nameOfEventosTypes;
 my @totalEventos;
 
+my $numberOfProjetosTypes;
+my @nameOfProjetosTypes;
+my @totalProjetos;
+
+my $numberOfPremiosTypes;
+my @nameOfPremiosTypes;
+my @totalPremios;
+
 my @curriculumHTML;
 my $numberOfItem;
 
@@ -142,6 +152,17 @@ foreach (my $aut=0; $aut<$numberOfAuthors; $aut++)
 	(${$authorList[$aut]}[4],${$authorList[$aut]}[5],${$authorList[$aut]}[6]) = getLatitudeAndLongitude(${$authorList[$aut]}[3]);
 	${$authorList[$aut]}[7] = $authorPublications->{Orientandos};
     ${$authorList[$aut]}[8] = getURLPhoto($authorPublications->{PhotoID});
+	
+	#######################################
+	
+	${$authorList[$aut]}[9]  = $authorPublications->{FormacaoAcademica};
+	${$authorList[$aut]}[10] = $authorPublications->{AreasAtuacao};
+	${$authorList[$aut]}[11] = trimBlanks($authorPublications->{Produtividade});
+
+	# ${$authorList[$aut]}[11] = $authorPublications->{Projetos};
+	# ${$authorList[$aut]}[12] = $authorPublications->{Premios};
+		
+	#######################################
 
 	print "\n Publicaçoes";
 	@nameOfPublicationsTypes   = @{$authorPublications->{Publication_type}};
@@ -162,10 +183,15 @@ foreach (my $aut=0; $aut<$numberOfAuthors; $aut++)
 	@nameOfOrientacoesTypes   = @{$authorPublications->{Orientacoes_type}};
 	$numberOfOrientacoesTypes = @{$authorPublications->{Orientacoes_type}};
 	@nameOfOrientacoesStatus  = @{$authorPublications->{Orientacoes_status}};
- 	setProducoes ($aut, \@{$authorPublications->{Orientacoes_andamento}}, \@totalOrientacoesEmAndamento, \@nameOfOrientacoesTypes, $numberOfOrientacoesTypes, 1, $authorCode, $authorName, $authorPeriods);
+ 	setProducoes ($aut, \@{$authorPublications->{OrientacoesAndamento}}, \@totalOrientacoesEmAndamento, \@nameOfOrientacoesTypes, $numberOfOrientacoesTypes, 1, $authorCode, $authorName, $authorPeriods);
 
 	print "\n Orientações concluídas";
- 	setProducoes ($aut, \@{$authorPublications->{Orientacoes_concluidas}}, \@totalOrientacoesConcluidas, \@nameOfOrientacoesTypes, $numberOfOrientacoesTypes, 1, $authorCode, $authorName, $authorPeriods);
+ 	setProducoes ($aut, \@{$authorPublications->{OrientacoesConcluidas}}, \@totalOrientacoesConcluidas, \@nameOfOrientacoesTypes, $numberOfOrientacoesTypes, 1, $authorCode, $authorName, $authorPeriods);
+
+	print "\n Projetos";
+	$numberOfProjetosTypes = @{$authorPublications->{Projetos_type}};
+	@nameOfProjetosTypes   = @{$authorPublications->{Projetos_type}};
+ 	setProducoes ($aut, \@{$authorPublications->{Projetos}}, \@totalProjetos, \@nameOfProjetosTypes, $numberOfProjetosTypes, 2, $authorCode, $authorName, $authorPeriods);
 
 	print "\n Bancas examinadoras";
 	$numberOfBancasExaminadorasTypes = @{$authorPublications->{BancasExaminadoras_type}};
@@ -182,6 +208,11 @@ foreach (my $aut=0; $aut<$numberOfAuthors; $aut++)
 	@nameOfEventosTypes   = @{$authorPublications->{Eventos_type}};
  	setProducoes ($aut, \@{$authorPublications->{Eventos}}, \@totalEventos, \@nameOfEventosTypes, $numberOfEventosTypes, 2, $authorCode, $authorName, $authorPeriods);
 
+	print "\n Premios";
+	$numberOfPremiosTypes = @{$authorPublications->{Premios_type}};
+	@nameOfPremiosTypes   = @{$authorPublications->{Premios_type}};
+ 	setProducoes ($aut, \@{$authorPublications->{Premios}}, \@totalPremios, \@nameOfPremiosTypes, $numberOfPremiosTypes, 2, $authorCode, $authorName, $authorPeriods);
+
 	print "\n";
 }
 
@@ -191,10 +222,8 @@ foreach (my $aut=0; $aut<$numberOfAuthors; $aut++)
 my @netCollaborations;
 my @netCollaborationsDetail;
 
-foreach (my $i=0; $i<$numberOfAuthors; $i++)
-{
-	foreach (my $j=0; $j<$numberOfAuthors; $j++)
-	{ 
+foreach (my $i=0; $i<$numberOfAuthors; $i++) {
+	foreach (my $j=0; $j<$numberOfAuthors; $j++) { 
 		$netCollaborations[$i][$j] = 0; 
 		$netCollaborationsDetail[$i][$j] = "";
 	}
@@ -250,6 +279,11 @@ my %allOrientacoesConcluidasByYear;
 my $numberOfAllOrientacoesConcluidas = sortProducoesByYear(\@totalOrientacoesConcluidas, \@orientacoesConcluidasByYear, \%allOrientacoesConcluidasByYear, $numberOfOrientacoesTypes, 1);
 print "\n- $numberOfAllOrientacoesConcluidas \t: Orientações concluídas";
 
+my @projetosByYear;
+my %allProjetosByYear;
+my $numberOfAllProjetos = sortProducoesByYear(\@totalProjetos, \@projetosByYear, \%allProjetosByYear, $numberOfProjetosTypes, 0);
+print "\n- $numberOfAllProjetos \t: Projetos";
+
 my @bancasExaminadorasByYear;
 my %allBancasExaminadorasByYear;
 my $numberOfAllBancasExaminadoras = sortProducoesByYear(\@totalBancasExaminadoras, \@bancasExaminadorasByYear, \%allBancasExaminadorasByYear, $numberOfBancasExaminadorasTypes, 0);
@@ -265,58 +299,69 @@ my %allEventosByYear;
 my $numberOfAllEventos = sortProducoesByYear(\@totalEventos, \@eventosByYear, \%allEventosByYear, $numberOfEventosTypes, 0);
 print "\n- $numberOfAllEventos \t: Eventos";
 
+my @premiosByYear;
+my %allPremiosByYear;
+my $numberOfAllPremios = sortProducoesByYear(\@totalPremios, \@premiosByYear, \%allPremiosByYear, $numberOfPremiosTypes, 0);
+print "\n- $numberOfAllPremios \t: Prêmios";
+
 
 # ---------------------------------------------------------------------------- #
 # Passo 5: Criacao de graficos estatísticos e grafo de colaboraçoes
 # ---------------------------------------------------------------------------- #
 print "\n\nCriando os graficos estatísticos e grafo de colaborações.";
 my $graphMap;
-makeCollaborationsGraph(\@netCollaborations, \@authorList);
+if ($flagGrafo=~"s") { 
+	makeCollaborationsGraph(\@netCollaborations, \@authorList);
+}
 
 makeStatisticsBarsByType(\@publicationsByYear, $numberOfPublicationsTypes, "P", translate("Número de publicações"));
 makeStatisticsBars(\%allPublicationsByYear, "$outputDir/P.png", translate("Total de publicações"));
 
-if ($numberOfAllProducoesTecnicas>0)
-{
+if ($numberOfAllProducoesTecnicas>0) {
 	makeStatisticsBarsByType(\@producoesTecnicasByYear, $numberOfProducoesTecnicasTypes, "PT", translate("Número de produções técnicas"));
 	makeStatisticsBars(\%allProducoesTecnicasByYear, "$outputDir/PT.png", translate("Total de produções técnicas"));
 }
 
-if ($numberOfAllProducoesArtisticas>0)
-{
+if ($numberOfAllProducoesArtisticas>0) {
 	makeStatisticsBarsByType(\@producoesArtisticasByYear, $numberOfProducoesArtisticasTypes, "PA", translate("Número de produções artísticas"));
-	makeStatisticsBars(\%allProducoesArtisticasByYear, "$outputDir/PA.png", translate("Total de produções artísticas"));
+	## makeStatisticsBars(\%allProducoesArtisticasByYear, "$outputDir/PA.png", translate("Total de produções artísticas"));
 }
 
-if ($numberOfAllOrientacoesEmAndamento>0)
-{
+if ($numberOfAllOrientacoesEmAndamento>0) {
 	makeStatisticsBarsByType(\@orientacoesEmAndamentoByYear, $numberOfOrientacoesTypes, "OA", translate("Número de orientações em andamento"));
 	makeStatisticsBars(\%allOrientacoesEmAndamentoByYear, "$outputDir/OA.png", translate("Total de orientações em andamento"));
 }
 
-if ($numberOfAllOrientacoesConcluidas>0)
-{
+if ($numberOfAllOrientacoesConcluidas>0) {
 	makeStatisticsBarsByType(\@orientacoesConcluidasByYear, $numberOfOrientacoesTypes, "OC", translate("Número de orientações concluídas"));
 	makeStatisticsBars(\%allOrientacoesConcluidasByYear, "$outputDir/OC.png", translate("Total de orientações concluídas"));
 }
 
-if ($numberOfAllBancasExaminadoras>0)
-{
+if ($numberOfAllProjetos>0) {
+	makeStatisticsBarsByType(\@projetosByYear, $numberOfProjetosTypes, "Pj", translate("Número de projetos"));
+	## makeStatisticsBars(\%allEventosByYear, "$outputDir/Pj.png", translate("Total de projetos"));
+}
+
+if ($numberOfAllBancasExaminadoras>0) {
 	makeStatisticsBarsByType(\@bancasExaminadorasByYear, $numberOfBancasExaminadorasTypes, "BE", translate("Número de bancas examinadoras"));
 	makeStatisticsBars(\%allBancasExaminadorasByYear, "$outputDir/BE.png", translate("Total de bancas examinadoras"));
 }
 
-if ($numberOfAllComissoesJulgadoras>0)
-{
+if ($numberOfAllComissoesJulgadoras>0) {
 	makeStatisticsBarsByType(\@comissoesJulgadorasByYear, $numberOfComissoesJulgadorasTypes, "CJ", translate("Número de comissões julgadoras"));
 	makeStatisticsBars(\%allComissoesJulgadorasByYear, "$outputDir/CJ.png", translate("Total de comissões julgadoras"));
 }
 
-if ($numberOfAllEventos>0)
-{
+if ($numberOfAllEventos>0) {
 	makeStatisticsBarsByType(\@eventosByYear, $numberOfEventosTypes, "Ev", translate("Número de eventos"));
 	makeStatisticsBars(\%allEventosByYear, "$outputDir/Ev.png", translate("Total de eventos"));
 }
+
+if ($numberOfAllPremios>0) {
+	makeStatisticsBarsByType(\@premiosByYear, $numberOfPremiosTypes, "Pm", translate("Número de prêmios"));
+	## makeStatisticsBars(\%allPremiosByYear, "$outputDir/Pm.png", translate("Total de premios"));
+}
+
 
 # ---------------------------------------------------------------------------- #
 # Passo 6: Criação das páginas web
@@ -331,15 +376,13 @@ my $scriptLattes_message = "";
 my $graph_message;
 my $map_message;
 my $noItems;
-my $button;
+my $button = "<button onClick=\"history.go(-1)\">Voltar</button>";
 
 if ($lang eq "EN")
 {
  		$dateLang = Date::Language->new('English');
 		$timestamp = $dateLang->time2str("%A, %m/%d/%Y %X\n", time);
-
 		$noItems = "<li><i>No item was found on Lattes curricula</i></li>";
-		$button = "<button onClick=\"history.go(-1)\">Back</button> <h2>$groupName</h2>";
 
 		if ($fromYear ne "" && $toYear ne "") { $scriptLattes_message .= "(*) Report created with productions since $itemsFromYear to ".translate($itemsToYear); }
 
@@ -369,9 +412,7 @@ else
 	{
  		$dateLang = Date::Language->new();
 		$timestamp = $dateLang->time2str("%d/%m/%Y %X\n", time);
-
 		$noItems = "<li><i> Ningun item fue encontrado en los curriculos Lattes</i></li>";
-		$button = "<button onClick=\"history.go(-1)\">Regresar</button> <h2>$groupName</h2>";
 
 		if ($fromYear ne "" && $toYear ne "") { $scriptLattes_message .= "(*) Reporte creado con producciones desde $itemsFromYear hasta ".translate($itemsToYear); }
 
@@ -402,9 +443,7 @@ else
 	{
  		$dateLang = Date::Language->new('Brazilian');
 		$timestamp = $dateLang->time2str("%A, %d/%m/%Y %X\n", time);
-
 		$noItems = "<li><i>Nenhum item achado nos currículos Lattes</i></li>";
-		$button = "<button onClick=\"history.go(-1)\">Voltar</button> <h2>$groupName</h2>";
 
 		if ($fromYear ne "" && $toYear ne "") { $scriptLattes_message .= "(*) Relatório criado com produções desde $itemsFromYear até $itemsToYear"; }
 
@@ -447,7 +486,7 @@ if ($googleAnalyticsKey ne "")
 	} catch(err) {}</script>";
 }
 
-my $head_message = "$beginHTML <head> $meta </head> <body> $button";
+my $head_message = "$beginHTML <head> $meta </head> <body> <div id=\"header2\"> $button <h2>$groupName</h2> </div> ";
 my $ending_message = "$scriptLattes_message </body> $endHTML";
 
 open(INDEXHTML, ">$outputDir/index.$extension");
@@ -461,38 +500,41 @@ my $allInfoByType;
 
 print INDEXHTML "</head> <body onload=\"initialize()\" onunload=\"GUnload()\">
 <div id=\"header\">
-<center> <h2>$groupName</h2> [ 
+<h2>$groupName</h2> [ 
 <a href=list.$extension>".translate('Membros')."</a> | 
 <a href=#publicacoes>".translate('Publicações')."</a> | 
 <a href=#producoesTecnicas>".translate('Produções técnicas')."</a> | 
 <a href=#producoesArtisticas>".translate('Produções artísticas')."</a>";
 
-	if ($flagOrientacoes=~"s")
-	{ 
+	if ($flagOrientacoes=~"s") { 
 		print INDEXHTML " | <a href=#orientacoes>".translate('Orientações')."</a>"; 
 	}
 
-	if ($flagBancas=~"s" or $flagComissoes=~"s")      
-	{ 
+	if ($flagProjetos=~"s") { 
+		print INDEXHTML " | <a href=#projetos>".translate('Projetos')."</a>"; 
+	}
+
+	if ($flagBancas=~"s" or $flagComissoes=~"s") { 
 		print INDEXHTML " | <a href=#bancas>".translate('Bancas')."</a>"; 
 	}
 
-	if ($flagEventos=~"s")     
-	{ 
+	if ($flagEventos=~"s") { 
 		print INDEXHTML " | <a href=#eventos>".translate('Eventos')."</a>"; 
 	}
 
-	if ($flagGrafo=~"s")       
-	{ 
+	if ($flagPremios=~"s") { 
+		print INDEXHTML " | <a href=#premios>".translate('Prêmios')."</a>"; 
+	}
+
+	if ($flagGrafo=~"s") { 
 		print INDEXHTML " | <a href=#grafo>".translate('Grafo de colaborações')."</a>"; 
 	}
 
-	if ($flagGoogleMap=~"s") 
-	{ 
+	if ($flagGoogleMap=~"s") { 
 		print INDEXHTML " | <a href=#mapa>".translate('Mapa de pesquisa')."</a>"; 
 	}
 
-print INDEXHTML " ] </center><br> </div>";
+print INDEXHTML " ] <br> </div>";
 
 # ---------------------------------------------------------------------------- #
 # (a) Lista de autores
@@ -510,7 +552,18 @@ foreach (my $aut=0; $aut<$numberOfAuthors; $aut++)
 	my $authorCep     = ${$authorList[$aut]}[6];
 	my $authorPhoto   = ${$authorList[$aut]}[8];
 
-	print AUTHORSLIST "<tr><td valign=\"center\" height=\"40px\">".($aut+1).".</td> <td valign=\"top\" height=\"40px\"><img src=\"$authorPhoto\" width=\"40px\"></td> <td><a href=\"CV$aut.$extension\">$authorName</a> </td></tr>";
+	############################################
+	my $authorFormacao      = ${$authorList[$aut]}[9];
+	my $authorAreas         = ${$authorList[$aut]}[10];
+	my $authorProdutividade = ${$authorList[$aut]}[11];
+
+	if ($authorProdutividade ne ""){
+		$authorProdutividade = "($authorProdutividade)";
+	}
+	
+	############################################
+
+	print AUTHORSLIST "<tr><td valign=\"center\" height=\"40px\">".($aut+1).".</td> <td valign=\"top\" height=\"40px\"><img src=\"$authorPhoto\" width=\"40px\"></td> <td><a href=\"CV$aut.$extension\">$authorName</a> </td> <td>$authorProdutividade</td></tr>";
 
 	open(AUTHOR,">$outputDir/CV$aut.$extension");
 	print AUTHOR "$beginHTML <head> $meta";
@@ -534,6 +587,28 @@ foreach (my $aut=0; $aut<$numberOfAuthors; $aut++)
     { 
         print AUTHOR "<li><b>".translate("Período")."(s):</b> $authorPeriods "; 
     }
+
+	##################################
+
+    print AUTHOR "<li><b>".translate("Formação acadêmica/Titulação").":</b>";
+	$allInfoByType->{"FormacaoAcademica"}{$authorName} = ();
+
+	foreach my $curso (@{$authorFormacao}) {
+    	print AUTHOR "<br> $curso"; 
+		push(@{$allInfoByType->{"FormacaoAcademica"}{$authorName}}, $curso);
+	}
+	
+    print AUTHOR "<li><b>".translate("Áreas de atuação").":</b>"; 
+	$allInfoByType->{"AreasAtuacao"}{$authorName} = ();
+
+	foreach my $area (@{$authorAreas}) {
+    	print AUTHOR "<br> $area"; 
+		push(@{$allInfoByType->{"AreasAtuacao"}{$authorName}}, $area);
+	}
+
+	
+	##################################
+
     print AUTHOR "<li><b>".translate("Endereço profissional").":</b> <br> ".convertAddressToHTML($authorAddress)."<br>";
 	
     if ( $flagGoogleMap=~"s" ) 
@@ -569,10 +644,11 @@ close(AUTHORSLIST);
 # - PA: Producoes artisticas
 # - OA: Orientacoes em andamento
 # - OC: Orientacoes concluidas
+# - Pj: Projetos
 # - BE: Bancas examinadoras
 # - CJ: Comissoes julgadoras
 # - Ev: Eventos
-# - Pr: Premios
+# - Pm: Premios
 # ---------------------------------------------------------------------------- #
 
 # ---------------------------------------------------------------------------- #
@@ -654,55 +730,74 @@ if ($flagOrientacoes=~"s")
 }
 
 # ---------------------------------------------------------------------------- #
-# (f) Bancas examinadoras
-if ($flagBancas=~"s")
-{
+# (f) Projetos
+if ($flagProjetos=~"s") {
+	print INDEXHTML "<h3 id=\"projetos\">".translate("Projetos")."</h3><ul>";
+	if ($numberOfAllProjetos>0) {
+		makeHTMLOfProducoes(\@totalProjetos, \@projetosByYear, \@nameOfProjetosTypes, $numberOfProjetosTypes, "Pj", 0);
+		## makeHTMLItemOfProducoes(\%allProjetosByYear, translate("Total de projetos"), $numberOfAllProjetos, "", "Pj");
+	} else { 
+		print INDEXHTML $noItems; 
+	}
+	print INDEXHTML "</ul>";
+}
+
+
+# ---------------------------------------------------------------------------- #
+# (g) Bancas examinadoras
+if ($flagBancas=~"s") {
 	print INDEXHTML "<h3 id=\"bancas\">".translate("Participação em bancas examinadoras")."</h3><ul>";
-	if ($numberOfAllBancasExaminadoras>0)
-	{
+	if ($numberOfAllBancasExaminadoras>0) {
 		makeHTMLOfProducoes(\@totalBancasExaminadoras, \@bancasExaminadorasByYear, \@nameOfBancasExaminadorasTypes, $numberOfBancasExaminadorasTypes, "BE", 0);
 		makeHTMLItemOfProducoes(\%allBancasExaminadorasByYear, translate("Total de bancas examinadoras"), $numberOfAllBancasExaminadoras, "", "BE");
-	}
-	else 
-	{ 
+	} else { 
 		print INDEXHTML $noItems; 
 	}
 	print INDEXHTML "</ul>";
 }
 
 # ---------------------------------------------------------------------------- #
-# (g) Comissoes julgadoras
-if ($flagComissoes=~"s")
-{
+# (h) Comissoes julgadoras
+if ($flagComissoes=~"s") {
 	print INDEXHTML "<h3 id=\"bancas\">".translate("Participação em comissões julgadoras")."</h3><ul>";
-	if ($numberOfAllComissoesJulgadoras>0)
-	{
+	if ($numberOfAllComissoesJulgadoras>0) {
 		makeHTMLOfProducoes(\@totalComissoesJulgadoras, \@comissoesJulgadorasByYear, \@nameOfComissoesJulgadorasTypes, $numberOfComissoesJulgadorasTypes, "CJ", 0);
 		makeHTMLItemOfProducoes(\%allComissoesJulgadorasByYear, translate("Total de comissoes julgadoras"), $numberOfAllComissoesJulgadoras, "", "CJ");
-	}
-	else 
-	{ 
+	} else { 
 		print INDEXHTML $noItems; 
 	}
 	print INDEXHTML "</ul>";
 }
 
 # ---------------------------------------------------------------------------- #
-# (h) Eventos
-if ($flagEventos=~"s")
-{
+# (i) Eventos
+if ($flagEventos=~"s") {
 	print INDEXHTML "<h3 id=\"eventos\">".translate("Eventos")."</h3><ul>";
-	if ($numberOfAllEventos>0)
-	{
+	if ($numberOfAllEventos>0) {
 		makeHTMLOfProducoes(\@totalEventos, \@eventosByYear, \@nameOfEventosTypes, $numberOfEventosTypes, "Ev", 0);
 		makeHTMLItemOfProducoes(\%allEventosByYear, translate("Total de eventos"), $numberOfAllEventos, "", "Ev");
-	}
-	else 
-	{ 
+	} else { 
 		print INDEXHTML $noItems; 
 	}
 	print INDEXHTML "</ul>";
 }
+
+# ---------------------------------------------------------------------------- #
+# (j) Premios
+if ($flagPremios=~"s") {
+	print INDEXHTML "<h3 id=\"premios\">".translate("Prêmios")."</h3><ul>";
+	if ($numberOfAllPremios>0) {
+		makeHTMLOfProducoes(\@totalPremios, \@premiosByYear, \@nameOfPremiosTypes, $numberOfPremiosTypes, "Pm", 0);
+		## makeHTMLItemOfProducoes(\%allPremiosByYear, translate("Total de prêmios"), $numberOfAllPremios, "", "Pm");
+	} else { 
+		print INDEXHTML $noItems; 
+	}
+	print INDEXHTML "</ul>";
+}
+
+
+
+
 
 # ---------------------------------------------------------------------------- #
 close(SERIES);
@@ -717,8 +812,7 @@ if ($flagGrafo=~"s")
 	open(COLLABORATIONS,">$outputDir/collaborators.$extension");
 	print COLLABORATIONS "$head_message <h3>".translate("Grafo de colaborações")."</h3> $graph_message <br>";
 
-	if ($flagIndicadores=~"s")
-	{
+	if ($flagIndicadores=~"s") {
 		print COLLABORATIONS "Para cada vértice: Os valores entre parênteses indicam \"número de publicações\"/\"grau de colaboração\",
 		a cor representa a quantidade de publicações do membro do grupo considerando o seguinte mapa de cores:<br>
 		<img src=colormap.png border=0> <br><p>";
@@ -747,22 +841,18 @@ if ($flagGrafo=~"s")
 	open(COLLABORATIONSDETAIL,">$outputDir/collaboratorsDetail.html");
 	print COLLABORATIONSDETAIL "$head_message <br>";
 
-	for (my $i=0; $i<$numberOfAuthors-1; $i++)
-	{
-		for (my $j=$i+1; $j<$numberOfAuthors; $j++)
-		{ 
+	for (my $i=0; $i<$numberOfAuthors-1; $i++) {
+		for (my $j=$i+1; $j<$numberOfAuthors; $j++) { 
 			my $indI = $i;
 			my $indJ = $j;
 		
-			if ($indI>$indJ) # trocamos
-			{
+			if ($indI>$indJ) { # trocamos
 				my $temp = $indI;
 				$indI = $indJ;
 				$indJ = $temp;
 			}
 		
-			if ($netCollaborationsDetail[$indI][$indJ] ne "")
-			{
+			if ($netCollaborationsDetail[$indI][$indJ] ne "") {
 				print COLLABORATIONSDETAIL "\n<hr>  <a name=\"$indI-$indJ\"><b>".$authorList[$i][1]." <> ".$authorList[$j][1]." (".$netCollaborations[$indI][$indJ].")</b><div id=\"list\"><ol>\n".$netCollaborationsDetail[$indI][$indJ]."\n</ol></div>";
 			}
 		}
@@ -886,17 +976,23 @@ sub getYearOnPublication
 #		}
 #    }
 
+	$publication =~ s/\n//g;
+	$publication =~ s/\<a.*a\>//gi;
+
 	$publication =~ s/ v\.\s* \d\d\d\d/ /;   # v. 2010.
 	my $last = ($publication=~m/.*[\,|\)|\.|\s](19\d\d|20[012]\d)[\.|\,|\(|\s].*/g)[-1];
-
-	if ($last) 
-	{
+	if ($last) {
 		$year = $last;
+	} else {
+		# quando não identificou ano no final, entao procuramos no inicio (e.g projetos e prêmios)
+		$publication =~ m/^(\d\d\d\d)/;
+		if ($1) {
+			$year = $1;
+		}
 	}
 
     return $year;
 }
-
 
 # ---------------------------------------------------------------------------- #
 # convertAddressToHTML
@@ -951,6 +1047,9 @@ sub getLatitudeAndLongitude
 				$qString = "brazil+$uf+$cep";
 			}
 		}
+		
+		$qString =~ s/'/ /g;
+		$qString =~ s/"/ /g;
 
 		my $cmd = "wget -o /dev/null -O - 'http://maps.google.com/maps/geo?output=csv&sensor=false&key=$googleMapKey&q=$qString'"; 
 		my $googleMapsCoords= `$cmd`; 
@@ -1457,7 +1556,7 @@ sub makeCollaborationsGraph
 	my $min;
 	my $max;
 
-	($min, $max) = getMinMax(@authorIndicator);
+	($min, $max) = getMinMaxVector(@authorIndicator);
 	
 	use GraphViz;
 	#my $g = GraphViz->new(directed=>0, layout=>'neato', rankdir=>0, random_start=>0, nodesep=>0.05, ranksep=>0.05, center=>'true', no_overlap=>'true', ratio=>'compress', width=>6.5, concentrate=>1, epsilon=>0);
@@ -1467,6 +1566,54 @@ sub makeCollaborationsGraph
 	
 	#rankdir=1: nós na posição vertical
 	#rankdir=0: nós na posição horizontal (OK)
+
+	# -----------------------------------------------------------------------------
+	# -----------------------------------------------------------------------------
+	my $gc = GraphViz->new(directed=>0, layout=>'dot', rankdir=>0, overlap=>'false', random_start=>1, nodesep=>0.05, ranksep=>0.05, center=>'true', ratio=>'compress', concentrate=>0);   # 
+
+	for (my $aut=0; $aut<$numberOfAuthors; $aut++) { 
+		my $authorCode = ${$authorList[$aut]}[0];
+		my $authorName = ${$authorList[$aut]}[1];
+		my $urlCV      = $urlLattes.$authorCode;
+		$authorName    = unaccent($authorName);
+		$gc->add_node($aut, label=>$authorName, style=>'filled', fontcolor=>'#ffffff', fillcolor=>'#003399', URL=>$urlCV, fontsize=>9, shape=>'box', width=>0.10, height=>0.10);
+	}
+
+	for (my $i=0; $i<$numberOfAuthors-1; $i++) {
+		for (my $j=$i+1; $j<$numberOfAuthors; $j++) {
+			if ($netCollaborations[$i][$j]>0) {
+				$gc->add_edge($i=>$j, label=>$netCollaborations[$i][$j], URL=>"LINK$i-$j", fontcolor=>'#007a00', fontsize=>7, labeldistance=>0, decorateP=>'true', labelfloat=>'false', constraint=>'true');
+			}
+		}
+	}
+	
+	open(CAN, ">$outputDir/collaborators.pre");
+	print CAN $gc->as_canon;
+	close CAN;
+
+	# -----------------------------------------------------------------------------
+	# Deteção de comunidades
+	print "\n\n Deteção de comunidades";
+
+	system("java -jar findCommunities.jar $outputDir/collaborators.pre $outputDir/communities.txt > /dev/null");
+	open(COMM, "<$outputDir/communities.txt");
+	my @communitiesLabel;
+	my $i = 0;
+
+	while(<COMM>) {
+		$_ =~ s/\n//;
+		my @line = split ('\t', $_) ;
+		$communitiesLabel[$i][0] = trimBlanks($line[0]);
+		$communitiesLabel[$i][1] = trimBlanks($line[1]);
+
+		print "\n-".$communitiesLabel[$i][0].": ".$communitiesLabel[$i][1];
+		$i++;
+	}
+	close(COMM);
+
+
+	# -----------------------------------------------------------------------------
+	# -----------------------------------------------------------------------------
 	
 	my $g = GraphViz->new(directed=>0, layout=>'dot', rankdir=>0, overlap=>'false', random_start=>1, nodesep=>0.05, ranksep=>0.05, center=>'true', ratio=>'compress', concentrate=>0);   # 
 
@@ -1477,60 +1624,63 @@ sub makeCollaborationsGraph
     # -fdp - edges sobreposto!! muito ruin!!
     # -twopi - ruim, todos os edges obrepostos!!
 
-	for (my $aut=0; $aut<$numberOfAuthors; $aut++)
-	{ 
+	for (my $aut=0; $aut<$numberOfAuthors; $aut++) { 
 		my $cardinalityOfCollaboration = 0;
-		my $normalizedValue = ($authorIndicator[$aut]-$min)/($max-$min);
+		my $normalizedValue = ($authorIndicator[$aut]-$min)/($max-$min+0.001);
 
-		for (my $t=0; $t<$numberOfAuthors; $t++)
-		{
+		for (my $t=0; $t<$numberOfAuthors; $t++) {
 			$cardinalityOfCollaboration += $netCollaborations[$aut][$t];
 		}
 
-		if ($cardinalityOfCollaboration>0 || $flagTodosOsNos=~"s")
-		{
+		if ($cardinalityOfCollaboration>0 || $flagTodosOsNos=~"s") {
 			my $authorCode = ${$authorList[$aut]}[0];
 			my $authorName = ${$authorList[$aut]}[1];
 			my $urlCV;
+			my $authorCommunity;
 			$authorName = unaccent($authorName);
 
-			if($flagIDSLattes=~"s")
-			{
+			#-----------------------------------------------------------
+			#-----------------------------------------------------------
+			for(my $at=0; $at<$numberOfAuthors; $at++){
+				if ($communitiesLabel[$at][0] eq $authorCode) {
+					$authorCommunity = $communitiesLabel[$at][1];
+				}
+			} 
+			#-----------------------------------------------------------
+			#-----------------------------------------------------------
+
+			if($flagIDSLattes=~"s") {
 				$urlCV = $urlLattes.$authorCode;
 			}
-			else
-			{
+			else {
 				$urlCV = "CV$aut.$extension";
 			}
-
-			#	$g->add_node($aut, label=>$authorName, style=>'filled', fontcolor=>'#ffffff', fillcolor=>'#003399', URL=>$urlCV, fontsize=>9, shape=>'box', width=>0.10, height=>0.10);
-			#	$g->add_node($aut, label=>"$authorName ($cardinalityOfCollaboration)", style=>'filled', fontcolor=>'#ffffff', fillcolor=>'#003399', URL=>$urlCV, fontsize=>9, shape=>'box', width=>0.10, height=>0.10);
-			# $g->add_node($aut, label=>$authorName, style=>'filled', fontcolor=>'#ffffff', fillcolor=>'#003399', URL=>$urlCV, fontsize=>9, shape=>'box', width=>0.10, height=>0.10);
-
-			if ($flagIndicadores=~"s")
-			{
-				my $foreColor; 
-				my $backColor;
-				($foreColor, $backColor) = getColors($normalizedValue);
-
+			
+			if ($flagIndicadores=~"s") {
+				my ($foreColor, $backColor) = getColors($normalizedValue,1);
 				$g->add_node($aut, label=>"$authorName (".$authorIndicator[$aut]."/$cardinalityOfCollaboration)", style=>'filled', fontcolor=>$foreColor, fillcolor=>$backColor, URL=>$urlCV, fontsize=>9, shape=>'box', width=>0.10, height=>0.10);
 			}
-			else
-			{
-				$g->add_node($aut, label=>$authorName, style=>'filled', fontcolor=>'#ffffff', fillcolor=>'#003399', URL=>$urlCV, fontsize=>9, shape=>'box', width=>0.10, height=>0.10);
+			else {
+				my ($foreColor, $backColor) = getColors($authorCommunity,2);
+				$g->add_node($aut, label=>$authorName, style=>'filled', fontcolor=>$foreColor, fillcolor=>$backColor, URL=>$urlCV, fontsize=>9, shape=>'box', width=>0.10, height=>0.10, cluster=>$authorCommunity);
+				#$g->add_node($aut, label=>$authorName, style=>'filled', fontcolor=>'#ffffff', fillcolor=>'#003399', URL=>$urlCV, fontsize=>9, shape=>'box', width=>0.10, height=>0.10);
 			}
 		}
 	}
+	
+	($min, $max) = getMinMaxMatrix(@netCollaborations);
 
-	for (my $i=0; $i<$numberOfAuthors-1; $i++)
-	{
-		for (my $j=$i+1; $j<$numberOfAuthors; $j++)
-		{
-			if ($netCollaborations[$i][$j]>0)
-			{
+	for (my $i=0; $i<$numberOfAuthors-1; $i++) {
+		for (my $j=$i+1; $j<$numberOfAuthors; $j++) {
+			if ($netCollaborations[$i][$j]>0) {
+
+				my $normalizedValue = ($netCollaborations[$i][$j]-$min)/($max-$min+0.001);
+				my $penwidth = $normalizedValue*(5-1)+1;
+
 				#$g->add_edge($i=>$j, label=>$netCollaborations[$i][$j], fontcolor=>'#007a00', fontsize=>8, labelfloat=>'false', constraint=>'true');
 				#$g->add_edge($i=>$j, label=>$netCollaborations[$i][$j], URL=>"lolo.html onclick=window.open('jex5.htm','mywindow','width=400,height=200')", fontcolor=>'#007a00', fontsize=>9, labeldistance=>0, decorateP=>'true', labelfloat=>'false', constraint=>'true');
-				$g->add_edge($i=>$j, label=>$netCollaborations[$i][$j], URL=>"LINK$i-$j", fontcolor=>'#007a00', fontsize=>7, labeldistance=>0, decorateP=>'true', labelfloat=>'false', constraint=>'true');
+				#$g->add_edge($i=>$j, label=>$netCollaborations[$i][$j], URL=>"LINK$i-$j", fontcolor=>'#007a00', fontsize=>7, labeldistance=>0, decorateP=>'true', labelfloat=>'false', constraint=>'true',penwidth=>4);
+				$g->add_edge($i=>$j, label=>$netCollaborations[$i][$j], URL=>"LINK$i-$j", fontcolor=>'#007a00', fontsize=>7, labeldistance=>0, decorateP=>'true', labelfloat=>'false', constraint=>'true',penwidth=>$penwidth);
 			}
 		}
 	}
@@ -1563,6 +1713,31 @@ sub makeCollaborationsGraph
 	$graphMap =~ s/(.*)LINK(\d+-\d+)(.*)\/>/$1javascript:void(0);$3 onclick="w=window.open\('collaboratorsDetail.html#$2','mywindow','scrollbars=1,directories=0,titlebar=0,location=0,toolbar=0,status=0,menubar=0,width=600,height=300,top=0,left=400'\);w.focus();"\/>/g;
 
 }
+
+#sub getEdgePenWidth 
+#{
+#	my($value) = @_;
+#	my $width;
+#		
+#	if    ($value>=1  && $value<=2 ) { $width = 1; } 
+#	elsif ($value>=3  && $value<=5 ) { $width = 1; }
+#	elsif ($value>=6  && $value<=9 ) { $width = 1; }
+#	elsif ($value>=10 && $value<=14) { $width = 1; }
+#	elsif ($value>=15 && $value<=20) { $width = 1; }
+#	elsif ($value>=21 && $value<=27) { $width = 1; }
+#	elsif ($value>=28 && $value<=35) { $width = 1; }
+#	elsif ($value>=36 && $value<=44) { $width = 1; }
+#	elsif ($value>=45 && $value<=54) { $width = 1; }
+#	elsif ($value>=55 && $value<=65) { $width = 1; }
+#	else { $width = 1; }
+#}
+#
+#	$width = $value
+#
+#	return $width;
+#
+#}
+
 
 # ---------------------------------------------------------------------------- #
 # makeStatisticsBarsByType
@@ -1752,6 +1927,18 @@ sub setProducoes
 	my @listOfPeriods    = getListOfPeriods($authorPeriods);
 	my $totalOfProducoes = 0;
 
+    # funciona bem:
+    # - 0 publicacoes
+    # - 0 prod. tecnicas
+    # - 0 prod. artisticas
+    # - 1 orientacoes ( as 2 tipos)  :  acrescenta orientador
+    # - 2 bancas                     :  acrescenta MEMBRO
+    # - 2 comissoes:                    acrescenta MEMBRO
+    # - 2 eventos:                      acrescenta MEMBRO
+    #
+    #  nao funciona bem:
+    # - 2 projetos:                     acrescenta MEMBRO
+    # - 2 premios:                      acrescenta MEMBRO
 	for (my $type=0; $type<$numberOfTypes; $type++)
 	{
 		if ($authorProducoes[$type])
@@ -1787,17 +1974,24 @@ sub setProducoes
 
 					if ($flag==1) # para o caso das orientacoes
 					{
-						if ( $item=~m/\(Co-Orientador\)\./i || $item=~m/Co-Orientador\:.*/i )
+						my $link = "";
+
+						if ($item =~ /<a.*\/a>/)
+						{
+							$link=$&;
+						}
+
+						if ( $item=~/\(Co-Orientador\)\./i || $item=~/Co-Orientador\:.*/i )
 						{
 							$item =~ s/\(Co-Orientador\)\./ /gi;
 							$item =~ s/Co-Orientador\:.*/ /gi;
-							$item .= "<br><i>Co-".translate("Orientador").": <a href=CV$aut.$extension>$authorName</a>.</i>";
+							$item .= "$link<br><i>Co-".translate("Orientador").": <a href=CV$aut.$extension>$authorName</a>.</i>";
 						}
 						else
 						{
 							$item =~ s/\(Orientador\)\./ /gi;
 							$item =~ s/Orientador\:.*/ /gi;
-							$item .= "<br><i>".translate("Orientador").": <a href=CV$aut.$extension>$authorName</a>.</i>";
+							$item .= "$link<br><i>".translate("Orientador").": <a href=CV$aut.$extension>$authorName</a>.</i>";
 						}
 						push @{$$totalProducoesRef[$type]}, $item;
 					}
@@ -2044,10 +2238,8 @@ sub sortProducoesByYear
 	my($totalFilteredProducoes, $producoesByYear, $allProducoesByYear, $numberOfTypes, $flag) = @_;
 	my $numberOfAllProducoes = 0;
 
-	for (my $type=0; $type<$numberOfTypes; $type++)
-	{
-		if ($$totalFilteredProducoes[$type])  # Se existe publicacoes do tipo $type
-		{
+	for (my $type=0; $type<$numberOfTypes; $type++) {
+		if ($$totalFilteredProducoes[$type]) {  # Se existe publicacoes do tipo $type
 			my @totalFilteredPubByType = @{$$totalFilteredProducoes[$type]};
 			my $numberOfFilteredPubByType;
 
@@ -2056,8 +2248,7 @@ sub sortProducoesByYear
 			
 			$numberOfAllProducoes += $numberOfFilteredPubByType;
 
-			for (my $p=0; $p<$numberOfFilteredPubByType; $p++)
-			{
+			for (my $p=0; $p<$numberOfFilteredPubByType; $p++) {
 				my $pub;
 				if ($flag==0) { $pub = ${$totalFilteredPubByType[2]}[$p]; }
 				if ($flag==1) { $pub = $totalFilteredPubByType[$p]; }
@@ -2241,7 +2432,7 @@ sub readParameters
 
 	open(FILENAME, "$fileName") || die "nao foi possível abrir o arquivo: $fileName";
 	print "\n\nLeitura do arquivo de configuração:";
-	for(my $i=0;$i<=14;$i++) { $pars[$i] = ""; }
+	for(my $i=0;$i<=21;$i++) { $pars[$i] = ""; }
 
 	while(<FILENAME>)
 	{
@@ -2262,17 +2453,19 @@ sub readParameters
 		if ($parA eq "mostrar-ids-lattes")  { $pars[9] = $parB; print "\n - $parA: $parB"; }
 
 		if ($parA eq "mostrar-orientacoes") { $pars[10]= $parB; print "\n - $parA: $parB"; }
-		if ($parA eq "mostrar-bancas")      { $pars[11]= $parB; print "\n - $parA: $parB"; }
-		if ($parA eq "mostrar-comissoes")   { $pars[12]= $parB; print "\n - $parA: $parB"; }
-		if ($parA eq "mostrar-eventos")     { $pars[13]= $parB; print "\n - $parA: $parB"; }
+		if ($parA eq "mostrar-projetos")    { $pars[11]= $parB; print "\n - $parA: $parB"; }
+		if ($parA eq "mostrar-bancas")      { $pars[12]= $parB; print "\n - $parA: $parB"; }
+		if ($parA eq "mostrar-comissoes")   { $pars[13]= $parB; print "\n - $parA: $parB"; }
+		if ($parA eq "mostrar-eventos")     { $pars[14]= $parB; print "\n - $parA: $parB"; }
+		if ($parA eq "mostrar-premios")     { $pars[15]= $parB; print "\n - $parA: $parB"; }
 
-		if ($parA eq "mostrar-grafo-colaboracoes") { $pars[14] = $parB; print "\n - $parA: $parB"; }
-		if ($parA eq "mostrar-todos-os-nos")       { $pars[15] = $parB; print "\n - $parA: $parB"; }
-		if ($parA eq "mostrar-indicadores")        { $pars[16] = $parB; print "\n - $parA: $parB"; }
+		if ($parA eq "mostrar-grafo-colaboracoes") { $pars[16] = $parB; print "\n - $parA: $parB"; }
+		if ($parA eq "mostrar-todos-os-nos")       { $pars[17] = $parB; print "\n - $parA: $parB"; }
+		if ($parA eq "mostrar-indicadores")        { $pars[18] = $parB; print "\n - $parA: $parB"; }
 
-		if ($parA eq "mostrar-mapa-de-pesquisa")   { $pars[17] = $parB; print "\n - $parA: $parB"; }
-		if ($parA eq "google-map-key")             { $pars[18] = $parB; print "\n - $parA: $parB"; }
-		if ($parA eq "google-analytics-key")       { $pars[19] = $parB; print "\n - $parA: $parB"; }
+		if ($parA eq "mostrar-mapa-de-pesquisa")   { $pars[19] = $parB; print "\n - $parA: $parB"; }
+		if ($parA eq "google-map-key")             { $pars[20] = $parB; print "\n - $parA: $parB"; }
+		if ($parA eq "google-analytics-key")       { $pars[21] = $parB; print "\n - $parA: $parB"; }
 	}
 	close(FILENAME);
 
@@ -2384,23 +2577,43 @@ sub unaccent
 # ---------------------------------------------------------------------------- #
 sub getColors
 {
-	my ($normalizedValue) = @_;
+	my ($value, $type) = @_;
 
-	my @colorNum = ( 0.000000, 0.047619, 0.095238, 0.142857, 0.190476, 0.238095, 0.285714, 0.333333, 0.380952, 0.428571, 0.476190, 0.523809, 0.571428, 0.619047, 0.666666, 0.714285, 0.761904, 0.809523, 0.857142, 0.904761, 0.952380, 0.999999);
-	my @colorForeground = ( 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', '000000', '000000', '000000', '000000', '000000', '000000', '000000', '000000', '000000', '000000', 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF');
-	my @colorBackground = ( '00008F', '0000BF', '0000EF', '001FFF', '004FFF', '007FFF', '00AFFF', '00DFFF', '0FFFEF', '3FFFBF', '6FFF8F', '9FFF5F', 'CFFF2F', 'FFFF00', 'FFCF00', 'FF9F00', 'FF6F00', 'FF3F00', 'FF0F00', 'DF0000', 'AF0000', '7F0000');
-
-	my $numberOfColors = @colorNum;
+	my @colorNum;
+	my @colorForeground;
+	my @colorBackground;
 	my @color;
 
-	for (my $i=0; $i<$numberOfColors; $i++)
-    {   
-        if ($normalizedValue >= $colorNum[$i])
-        {   
-            $color[0] = "#".$colorForeground[$i];
-            $color[1] = "#".$colorBackground[$i];
-        }
-    }
+	if ($type==1) {
+		@colorNum = ( 0.000000, 0.047619, 0.095238, 0.142857, 0.190476, 0.238095, 0.285714, 0.333333, 0.380952, 0.428571, 0.476190, 0.523809, 0.571428, 0.619047, 0.666666, 0.714285, 0.761904, 0.809523, 0.857142, 0.904761, 0.952380, 0.999999);
+		@colorForeground = ( 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', '000000', '000000', '000000', '000000', '000000', '000000', '000000', '000000', '000000', '000000', 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF');
+		@colorBackground = ( '00008F', '0000BF', '0000EF', '001FFF', '004FFF', '007FFF', '00AFFF', '00DFFF', '0FFFEF', '3FFFBF', '6FFF8F', '9FFF5F', 'CFFF2F', 'FFFF00', 'FFCF00', 'FF9F00', 'FF6F00', 'FF3F00', 'FF0F00', 'DF0000', 'AF0000', '7F0000');
+
+		my $numberOfColors = @colorNum;
+
+		for (my $i=0; $i<$numberOfColors; $i++) {   
+	        if ($value >= $colorNum[$i]) {   
+	            $color[0] = "#".$colorForeground[$i];
+	            $color[1] = "#".$colorBackground[$i];
+	        }
+    	}
+	}
+	else {
+		@colorForeground = ( 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', '000000', 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', 'FFFFFF', '000000', '000000', '000000', '000000', '000000', '000000', '000000', '000000', 'FFFFFF', 'FFFFFF', 'FFFFFF', '000000');
+		@colorBackground = ( '333333', '006600', '000099', '990000', 'FFFF00', '330099', '009999', '330033', '0033FF', '330000', 'FFFFFF', 'CC9999', 'FF99CC', 'CCCCCC', 'FFCCFF', '999933', '99FFCC', 'FF33CC', 'FF3300', '339966', '660033', '00CC99');
+		
+		my $numberOfColors = @colorForeground;
+
+		if ($value<=$numberOfColors){
+		 	$color[0] = "#".$colorForeground[$value-1];
+		    $color[1] = "#".$colorBackground[$value-1];
+		}
+		else {
+		 	$color[0] = "#FFFFFF";
+		    $color[1] = "#FF0000";
+		}
+
+	}
 
 	return @color;
 }
@@ -2408,26 +2621,51 @@ sub getColors
 # ---------------------------------------------------------------------------- #
 # getMinMax
 # ---------------------------------------------------------------------------- #
-sub getMinMax
+sub getMinMaxVector
 {
 	my (@vector) = @_;
 	my @MinMax;
+
+	# Para uma vetor de elementos: Nro. de produções por autor
 	$MinMax[0] = $vector[0];  # mínimo
 	$MinMax[1] = $vector[0];  # máximo
 
-	for (my $i=1; $i<@vector; $i++)
-	{
-		if ($vector[$i] < $MinMax[0])
-		{
+	for (my $i=1; $i<@vector; $i++) {
+		if ($vector[$i] < $MinMax[0]) {
  			$MinMax[0] = $vector[$i];
 		}
 
-		if ($vector[$i] > $MinMax[1])
-		{
+		if ($vector[$i] > $MinMax[1]) {
  			$MinMax[1] = $vector[$i];
 		}
 	}
-	
+
+	return @MinMax;
+}
+
+sub getMinMaxMatrix
+{
+	my (@matrix) = @_;
+	my @MinMax;
+
+	# Para uma matriz de pesos: Nro. de colaborações (arestas)
+	$MinMax[0] = +10000;  # mínimo
+	$MinMax[1] = -10000;  # máximo
+
+	for (my $i=0; $i<$numberOfAuthors-1; $i++) {
+		for (my $j=$i+1; $j<$numberOfAuthors; $j++) {
+			if ($matrix[$i][$j]>0) {
+				if ($matrix[$i][$j]<$MinMax[0]) {
+					$MinMax[0] = $matrix[$i][$j];	
+				}
+				if ($matrix[$i][$j]>$MinMax[1]) {
+					$MinMax[1] = $matrix[$i][$j];	
+				}
+
+			}
+		}
+	}
+
 	return @MinMax;
 }
 

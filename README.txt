@@ -45,6 +45,27 @@ URL DO PROJETO
 =========================================================================================
 LOG
 
+Mon Nov  8 14:02:41 BRST 2010
+-- Foi acrescentada a informação do nível da bolsa de pesquisador do CNPq na lista 
+de membros (e.g. Nível 1A, Nível 2).
+-- Foi melhorada a função de identificação de localizações geográficas.
+
+Fri May 21 09:48:15 BRT 2010
+-- As possíveis comunidades, referentes a colaborações entre membros do grupo,
+são identificadas automaticamente utilizando o algoritmo iterativo de Newman 2006.
+
+Sat Apr 17 13:47:32 BRT 2010
+-- Foi acrescentado um ícone para a indicação do DOI nas publicações.
+
+Wed Mar 24 14:44:38 BRT 2010
+-- Foram consideradas, mediante novos parâmetros, os seguintes relatórios adicionais:
+   - Projetos de pesquisa.
+   - Prêmios.
+-- As páginas correspondentes aos curriculums mostram também:
+   - Formação acadêmica/Titulação.
+   - Áreas de atuação.
+-- O arquivo database.json contêm todas essas novas informações.
+
 Mon Mar 15 08:02:22 BRT 2010
 -- Melhoramento da função de comparação. Em média o algoritmo de comparação da
    versão 7.02 é 13X mais rápido que o anterior.

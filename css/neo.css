@@ -96,6 +96,16 @@ a:hover {
     background: #CCCCCC;
     color: #000000;
     margin:0 auto;
+	text-align: center;
+	padding: 10px 10px 10px 10px;
+}
+
+#header2 {
+    clear: both;
+    background: #CCCCCC;
+    color: #000000;
+    margin:0 auto;
+	text-align: left;
 	padding: 10px 10px 10px 10px;
 }
 
