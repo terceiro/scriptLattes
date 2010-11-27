@@ -1862,8 +1862,6 @@ sub copyAndPaste
 	!system("cp ./java/* $outputDir/") || die "Algum problema copiando os arquivos jar para a visualizacao (applet)";
 	!system("rm -f $outputDir/*.download") || die "Algum problema apagando arquivos temporários";
 	
-	my $ip = `wget -o /dev/null -O - http://ip.dnsexit.com/`;
-	system("wget -q -O /dev/null --post-data 'entry.0.single=$groupName&entry.1.single=$adminEmail&entry.2.single=$version&entry.3.single=$ip&entry.4.single=$numberOfAuthors&submit=Enviar' http://spreadsheets.google.com/formResponse?formkey=cDQ2dnhicm9GZUFYVzZtLWNwOC1PWnc6MA..");
 }
 
 
