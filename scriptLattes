@@ -1460,7 +1460,7 @@ sub getLattesFiles
 		print "\n- $cvFile ($authorName)";
 		my $url = $urlLattes.$authorCode;
 
-		my $realUrl = `wget -O /dev/null -q -S $url 2>&1 | grep Location | tail -n 1 | awk '{ print \$2 }'`;
+		my $realUrl = `wget -O /dev/null -S $url 2>&1 | grep Location: | tail -n 1 | awk '{ print \$2 }'`;
 		chomp $realUrl;
 		$realUrl .= '&palavra=10';
 		print "($realUrl)";
