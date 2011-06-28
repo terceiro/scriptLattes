@@ -1458,7 +1458,14 @@ sub getLattesFiles
 		my $cvFile        = "$outputDir/$authorCode.download";
 
 		print "\n- $cvFile ($authorName)";
-		!system("wget --tries=0 -q ".$urlLattes.$authorCode." -O $cvFile") || die "\nAlgum problema executando wget.\nProvavelmente o servidor Lattes não esta no ar.\n";
+		my $url = $urlLattes.$authorCode;
+
+		my $realUrl = `wget -O /dev/null -q -S $url 2>&1 | grep Location | tail -n 1 | awk '{ print \$2 }'`;
+		chomp $realUrl;
+		$realUrl .= '&palavra=10';
+		print "($realUrl)";
+
+		!system("wget --tries=0 -q \"".$realUrl."\" -O $cvFile") || die "\nAlgum problema executando wget.\nProvavelmente o servidor Lattes não esta no ar.\n";
 		#sleep(700);
 	}
 }
