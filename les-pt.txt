@@ -1,4 +1,4 @@
-nome-do-grupo      = Laboratório de Engenharia de Software - DCC - UFBA 
+nome-do-grupo      = Laboratório de Engenharia de Software - DCC - UFBA
 arquivo-de-entrada = les-members.txt
 diretorio-de-saida = output/pt
 email-do-admin     = les@dcc.ufba.br
@@ -7,6 +7,6 @@ itens-ate-o-ano    = HOJE
 itens-por-pagina   = 1000
 criar-paginas-jsp  = n
 mostrar-ids-lattes = sim
-mostrar-mapa-de-pesquisa   = sim
+mostrar-mapa-de-pesquisa   = nao
 google-map-key     = ABQIAAAAARbUA0sX6u-dIMfrzywAkxSNCh8D9WbDRsyQOZP7fgU69d6g6xQQhqY7p9kRtUBpEe_e1ms1GCtpKQ
 
